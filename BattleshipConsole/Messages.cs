@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BattleshipConsole;
 
-internal class Messages
+public class Messages
 {
     public static void LogoMsg()
     {
@@ -63,6 +63,81 @@ internal class Messages
         ShipMsg();
         WavesMsg();
         MadeByMsg();
+    }
+
+    public static void UnableToPlaceMsg(string location)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine();
+        Console.WriteLine($"Jeg klarte ikke å plassere skipet ditt på {location}, mulige plasseringer er A1 til E5");
+        Console.WriteLine();
+        Console.ResetColor();
+    }
+
+    public static void PlaceNextShipMsg(int ShipCount)
+    {
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine($"Plasserer skip nummer {ShipCount} av 5");
+        Console.ResetColor();
+        Console.Write($"Hvor vil du plassere skipet ditt?");
+        Console.WriteLine();
+        Console.Write("Plassering: ");
+    }
+
+    public static void PlaceShipPhase(string opponentName)
+    {
+        Console.Clear();
+        Console.WriteLine($"Din motstander er {opponentName}!");
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("**Planleggingsfasen**");
+        Console.ResetColor();
+        Console.WriteLine();
+        Console.WriteLine("Plasser ut fem skip på brettet, motstanderen din gjør det samme");
+    }
+
+    public static string AskForUsersName()
+    {
+        Console.WriteLine("Hva heter du?");
+        Console.Write("Navn: ");
+        string output = Console.ReadLine();
+        while (output.Length <= 1)
+        {
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Er du sikker på at du skrev inn et ordentlig navn?");
+            Console.WriteLine("Prøv igjen");
+            Console.ResetColor();
+            Console.WriteLine();
+            Console.Write("Navn: ");
+            output = Console.ReadLine();
+        }
+        return output;
+    }
+    public static void InvalidShotMsg(string msg)
+    {
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"Oops, jeg klarte ikke å skyte på {msg}, prøv igjen");
+        Console.ResetColor();
+    }
+
+    public static string AskForShot()
+    {
+        Console.WriteLine("Hvor vil du skyte?");
+        Console.Write("Plassering: ");
+        string result = Console.ReadLine();
+        return result;
+    }
+
+    public static void makeLetterLine(List<string> letters)
+    {
+        Console.Write("     ");
+        for (int i = 0; i < 5; i++)
+        {
+            Console.Write($"[ {letters[i]} ]");
+        }
     }
 }
 

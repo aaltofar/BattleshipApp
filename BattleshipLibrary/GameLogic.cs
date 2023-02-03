@@ -9,6 +9,8 @@ namespace BattleshipLibrary;
 
 public static class GameLogic
 {
+    public static int MaxShipCount { get; set; }
+
     public static void InitializeGrid(PlayerInfoModel model)
     {
         List<string> letters = new()
@@ -61,6 +63,11 @@ public static class GameLogic
             }
         }
         return HasShip;
+    }
+
+    public static bool IsNotInRange(string letter, int number, List<string> letters)
+    {
+        return letters.Contains(letter.ToUpper()) && (number >= 0 && number <= 5);
     }
 
     public static void PlacePlayerShip(List<GridSpotModel> ShipLocations, string letter, int number)
@@ -123,6 +130,26 @@ public static class GameLogic
             "Captain LeChuck"
         };
         return names[r.Next(0, names.Count)];
+    }
+
+    public static bool IsHit(PlayerInfoModel opponent, string row, int column)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static (string row, int column) SplitInputRowCol(string shot)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static bool ValidateShot(string row, int column, PlayerInfoModel player)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static void MarkShotResult(PlayerInfoModel player, string row, int column, bool isHit)
+    {
+        throw new NotImplementedException();
     }
 }
 
