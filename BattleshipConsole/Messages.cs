@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BattleshipLibrary;
+using BattleshipLibrary.Models;
 
 namespace BattleshipConsole;
 
@@ -74,6 +76,42 @@ public class Messages
         Console.ResetColor();
     }
 
+    public static void PlayerWinMessage(PlayerInfoModel player, PlayerInfoModel computer)
+    {
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write(@$"
+*********************************************************
+  Du vant over {computer.UserName}                      
+  Antall skudd: {GameLogic.GetShotTotalCount(player)}   
+*********************************************************
+");
+        Console.ResetColor();
+
+    }
+
+    public static void ComputerShotMsg(string username, string letter, int number, bool hit)
+    {
+        if (hit)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"{username} skøt mot {letter + number}");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Det var treff!");
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+        else
+        {
+            Console.WriteLine();
+            Console.WriteLine($"{username} skøt mot {letter + number}");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Det var bom!");
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+    }
+
     public static void PlaceNextShipMsg(int ShipCount)
     {
         Console.WriteLine();
@@ -125,6 +163,7 @@ public class Messages
 
     public static string AskForShot()
     {
+        Console.WriteLine();
         Console.WriteLine("Hvor vil du skyte?");
         Console.Write("Plassering: ");
         string result = Console.ReadLine();
