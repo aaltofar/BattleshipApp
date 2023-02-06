@@ -83,7 +83,7 @@ public class Messages
         Console.Write(@$"
 *********************************************************
   Du vant over {computer.UserName}                      
-  Antall skudd: {GameLogic.GetShotTotalCount(player)}   
+  Antall skudd: {PlayerInfoModel.GetShotTotalCount(player)}   
 *********************************************************
 ");
         Console.ResetColor();
@@ -123,10 +123,10 @@ public class Messages
         Console.Write("Plassering: ");
     }
 
-    public static void PlaceShipPhase(string opponentName)
+    public static void PlaceShipPhase()
     {
         Console.Clear();
-        Console.WriteLine($"Din motstander er {opponentName}!");
+        Console.WriteLine($"Din motstander er II!");
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("**Planleggingsfasen**");

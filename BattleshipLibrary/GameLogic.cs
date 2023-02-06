@@ -10,97 +10,10 @@ namespace BattleshipLibrary;
 
 public static class GameLogic
 {
-    public static int MaxShipCount { get; set; } = 5;
-
-    public static void InitializeGrid(PlayerInfoModel model)
-    {
-        List<string> letters = new()
-        {
-            "A",
-            "B",
-            "C",
-            "D",
-            "E"
-        };
-        List<int> numbers = new()
-        {
-            1,
-            2,
-            3,
-            4,
-            5
-        };
-
-        foreach (string letter in letters)
-            foreach (int number in numbers)
-                AddGridSpot(model, letter, number);
-    }
-
-    private static void AddGridSpot(PlayerInfoModel model, string letter, int number)
-    {
-        GridSpotModel spot = new GridSpotModel
-        {
-            SpotLetter = letter,
-            SpotNumber = number,
-            Status = GridSpotStatus.Empty,
-        };
-        model.ShotGrid.Add(spot);
-    }
-
-    public static bool IsOccupied(List<GridSpotModel> ShipLocations, string letter, int number)
-    {
-        foreach (var l in ShipLocations)
-            if (l.SpotLetter == letter && l.SpotNumber == number)
-                return true;
-
-        return false;
-    }
 
     public static bool IsNotOnGrid(string letter, int number, List<string> letters)
     {
         return letters.Contains(letter.ToUpper()) && number is >= 0 and <= 5;
-    }
-
-    public static void PlacePlayerShip(List<GridSpotModel> ShipLocations, string letter, int number)
-    {
-        var toAdd = new GridSpotModel()
-        {
-            SpotLetter = letter.ToUpper(),
-            SpotNumber = number,
-            Status = GridSpotStatus.Ship
-        };
-        ShipLocations.Add(toAdd);
-    }
-
-    public static List<GridSpotModel> PlaceComputerShips()
-    {
-        var output = new List<GridSpotModel>();
-        var r = new Random();
-        var letters = new List<string>()
-        {
-            "A",
-            "B",
-            "C",
-            "D",
-            "E"
-        };
-        while (output.Count < 5)
-        {
-            string letter = letters[r.Next(0, letters.Count)];
-            int number = r.Next(1, 5);
-            if (GameLogic.IsOccupied(output, letter, number))
-            {
-                continue;
-            }
-
-            output.Add(new GridSpotModel()
-            {
-                SpotLetter = letter,
-                SpotNumber = number,
-                Status = GridSpotStatus.Ship
-            });
-        }
-        return output;
     }
 
     public static PlayerInfoModel CreateComputer()
@@ -111,23 +24,7 @@ public static class GameLogic
         computer.ShipLocations = PlaceComputerShips();
         return computer;
     }
-    static string RandomName()
-    {
-        var r = new Random();
-        List<string> names = new List<string>()
-        {
-            "Kaptein Sortebill",
-            "Kaptein Sabeltann",
-            "Løytnant Kabelsatan",
-            "Guybrush Threepwood",
-            "Captain LeChuck",
-            "Simen Rødskjegg",
-            "Robert Blåpels",
-            "Kaptein Thomassen",
-            "Fredrik Tordenbart"
-        };
-        return names[r.Next(0, names.Count)];
-    }
+
 
     public static bool IsHit(PlayerInfoModel opponent, string row, int column)
     {
@@ -144,56 +41,6 @@ public static class GameLogic
         var letter = input[0].ToString().ToUpper();
         var number = int.Parse(input[1].ToString());
         return (letter, number);
-    }
-
-    public static bool ValidateShot(string row, int column, PlayerInfoModel captain)
-    {
-        foreach (var s in captain.ShotGrid)
-        {
-            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
-                if (s.Status == GridSpotStatus.Empty)
-                    return true;
-        }
-        return false;
-    }
-
-    public static void MarkShotResult(PlayerInfoModel player, string row, int column, bool isHit, PlayerInfoModel computer)
-    {
-        foreach (var s in player.ShotGrid)
-        {
-            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
-            {
-                if (isHit)
-                {
-                    s.Status = GridSpotStatus.Hit;
-                    SinkShip(player, row, column);
-                }
-
-                else
-                    s.Status = GridSpotStatus.Miss;
-            }
-        }
-    }
-
-    public static void SinkShip(PlayerInfoModel shipToSink, string row, int column)
-    {
-        foreach (var s in shipToSink.ShipLocations)
-        {
-            if (s.SpotLetter == row && s.SpotNumber == column)
-            {
-                s.Status = GridSpotStatus.Sunk;
-            }
-        }
-    }
-
-    public static int GetShotTotalCount(PlayerInfoModel player)
-    {
-        int count = 0;
-        foreach (var s in player.ShotGrid)
-            if (s.Status != GridSpotStatus.Empty)
-                count++;
-
-        return count;
     }
 
     public static (bool, string, int) MakeComputerShot(PlayerInfoModel player, PlayerInfoModel computer, List<string> letters)
@@ -218,39 +65,6 @@ public static class GameLogic
             return (false, row, column);
 
         return (true, row, column);
-    }
-
-    public static void MarkComputerShotResult(PlayerInfoModel computer, string row, int column, bool isHit, PlayerInfoModel player)
-    {
-        foreach (var s in computer.ShotGrid)
-        {
-            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
-            {
-                if (isHit)
-                {
-                    s.Status = GridSpotStatus.Hit;
-                    //SinkShip(player, row, column);
-                }
-
-                else
-                    s.Status = GridSpotStatus.Miss;
-            }
-        }
-    }
-
-    public static bool AlreadyShot(PlayerInfoModel computer, string row, int column)
-    {
-        foreach (var s in computer.ShotGrid)
-        {
-            if (s.SpotLetter == row && s.SpotNumber == column)
-            {
-                if (s.Status != GridSpotStatus.Empty)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public static PlayerInfoModel DetermineWinner(PlayerInfoModel player, PlayerInfoModel computer)
