@@ -105,13 +105,10 @@ public static class GameLogic
 
     public static PlayerInfoModel CreateComputer()
     {
-        var computer = new PlayerInfoModel()
-        {
-            UserName = RandomName(),
-            ShipLocations = PlaceComputerShips()
-        };
-        //computer.UserName = RandomName();
-        //computer.ShipLocations = PlaceComputerShips(computer);
+        var computer = new PlayerInfoModel();
+        computer.UserName = RandomName();
+        InitializeGrid(computer);
+        computer.ShipLocations = PlaceComputerShips();
         return computer;
     }
     static string RandomName()
@@ -149,9 +146,9 @@ public static class GameLogic
         return (letter, number);
     }
 
-    public static bool ValidateShot(string row, int column, PlayerInfoModel player)
+    public static bool ValidateShot(string row, int column, PlayerInfoModel captain)
     {
-        foreach (var s in player.ShotGrid)
+        foreach (var s in captain.ShotGrid)
         {
             if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
                 if (s.Status == GridSpotStatus.Empty)
@@ -160,17 +157,31 @@ public static class GameLogic
         return false;
     }
 
-    public static void MarkShotResult(PlayerInfoModel player, string row, int column, bool isHit)
+    public static void MarkShotResult(PlayerInfoModel player, string row, int column, bool isHit, PlayerInfoModel computer)
     {
         foreach (var s in player.ShotGrid)
         {
             if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
             {
                 if (isHit)
+                {
                     s.Status = GridSpotStatus.Hit;
+                    SinkShip(player, row, column);
+                }
 
                 else
                     s.Status = GridSpotStatus.Miss;
+            }
+        }
+    }
+
+    public static void SinkShip(PlayerInfoModel shipToSink, string row, int column)
+    {
+        foreach (var s in shipToSink.ShipLocations)
+        {
+            if (s.SpotLetter == row && s.SpotNumber == column)
+            {
+                s.Status = GridSpotStatus.Sunk;
             }
         }
     }
@@ -190,22 +201,56 @@ public static class GameLogic
         var r = new Random();
 
         string row = letters[r.Next(0, letters.Count)];
-        int column = r.Next(0, 5);
-        bool isValidShot = GameLogic.ValidateShot(row, column, player);
-
-        while (!isValidShot)
+        int column = r.Next(1, 6);
+        bool isValidShot = GameLogic.ValidateShot(row, column, computer);
+        bool alreadyShotHere = AlreadyShot(computer, row, column);
+        while (!isValidShot || alreadyShotHere)
         {
             row = letters[r.Next(0, letters.Count)];
-            column = r.Next(0, 5);
-            isValidShot = GameLogic.ValidateShot(row, column, player);
+            column = r.Next(1, 6);
+            isValidShot = GameLogic.ValidateShot(row, column, computer);
+            alreadyShotHere = AlreadyShot(computer, row, column);
         }
 
         bool isHit = GameLogic.IsHit(player, row, column);
-        GameLogic.MarkShotResult(computer, row, column, isHit);
+        GameLogic.MarkComputerShotResult(computer, row, column, isHit, player);
         if (!isHit)
             return (false, row, column);
-        else
-            return (true, row, column);
+
+        return (true, row, column);
+    }
+
+    public static void MarkComputerShotResult(PlayerInfoModel computer, string row, int column, bool isHit, PlayerInfoModel player)
+    {
+        foreach (var s in computer.ShotGrid)
+        {
+            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
+            {
+                if (isHit)
+                {
+                    s.Status = GridSpotStatus.Hit;
+                    //SinkShip(player, row, column);
+                }
+
+                else
+                    s.Status = GridSpotStatus.Miss;
+            }
+        }
+    }
+
+    public static bool AlreadyShot(PlayerInfoModel computer, string row, int column)
+    {
+        foreach (var s in computer.ShotGrid)
+        {
+            if (s.SpotLetter == row && s.SpotNumber == column)
+            {
+                if (s.Status != GridSpotStatus.Empty)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static PlayerInfoModel DetermineWinner(PlayerInfoModel player, PlayerInfoModel computer)

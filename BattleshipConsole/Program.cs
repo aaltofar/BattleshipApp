@@ -1,11 +1,15 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics.Metrics;
+using System.Text;
 using BattleshipConsole;
 using BattleshipLibrary;
 using BattleshipLibrary.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
+//Egen Game class, prøve å skrive om prosjektet til objektorientert
+
+Console.OutputEncoding = Encoding.UTF8;
 Messages.Intro();
 List<string> letters = new()
 {
@@ -29,7 +33,7 @@ do
     winner = GameLogic.DetermineWinner(player, computer);
     ComputerShot(player, computer, letters);
     winner = GameLogic.DetermineWinner(player, computer);
-    Thread.Sleep(5000);
+    Thread.Sleep(3000);
 } while (winner == null);
 
 if (winner == player)
@@ -41,7 +45,7 @@ static void ShowBoards(PlayerInfoModel player, PlayerInfoModel computer, List<st
 {
     Console.Clear();
     Console.WriteLine("Ditt brett:");
-    DisplayShipLocations(player, letters);
+    DisplayShipLocations(player, letters, computer);
     Console.WriteLine();
     Console.WriteLine();
     Console.WriteLine("Motstanderens brett:");
@@ -65,14 +69,14 @@ static PlayerInfoModel CreatePlayer(PlayerInfoModel computer)
     return player;
 }
 
-static void MakeShot(PlayerInfoModel player, PlayerInfoModel opponent)
+static void MakeShot(PlayerInfoModel player, PlayerInfoModel computer)
 {
     bool isValidShot = false;
     string row = "";
     int column = 0;
     do
     {
-
+        Console.WriteLine();
         string shot = Messages.AskForShot();
         (row, column) = GameLogic.SplitInputRowCol(shot);
         isValidShot = GameLogic.ValidateShot(row, column, player);
@@ -80,13 +84,13 @@ static void MakeShot(PlayerInfoModel player, PlayerInfoModel opponent)
             Messages.InvalidShotMsg(shot);
     } while (!isValidShot);
 
-    bool isHit = GameLogic.IsHit(opponent, row, column);
+    bool isHit = GameLogic.IsHit(computer, row, column);
     if (!isHit)
         Console.WriteLine($"Du skøyt mot {row}{column}, men det var ikke noe skip der.");
     else
         Console.WriteLine($"Du skøyt mot {row}{column} og traff!");
 
-    GameLogic.MarkShotResult(player, row, column, isHit);
+    GameLogic.MarkShotResult(player, row, column, isHit, computer);
 }
 
 static void DisplayShotGrid(PlayerInfoModel player, PlayerInfoModel computer)
@@ -124,18 +128,32 @@ static void DisplayShotGrid(PlayerInfoModel player, PlayerInfoModel computer)
     }
 }
 
-static void DisplayShipLocations(PlayerInfoModel player, List<string> letters)
+static void DisplayShipLocations(PlayerInfoModel player, List<string> letters, PlayerInfoModel computer)
 {
-    for (int i = 0; i < 5; i++)
+    int gridHeigth = 5;
+    int gridLength = 5;
+    for (int i = 0; i < gridHeigth; i++)
     {
         string currentLetter = letters[i];
         Console.WriteLine();
-        for (int j = 1; j <= 5; j++)
+        for (int j = 1; j <= gridLength; j++)
         {
             if (HasShip(player, j, currentLetter))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write($"[{currentLetter} {j}]");
+                Console.ResetColor();
+            }
+            else if (IsMiss(computer, j, currentLetter))
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write($"[{currentLetter} {j}]");
+                Console.ResetColor();
+            }
+            else if (IsSunk(player, j, currentLetter))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write($"[ X ]");
                 Console.ResetColor();
             }
             else
@@ -144,13 +162,29 @@ static void DisplayShipLocations(PlayerInfoModel player, List<string> letters)
     }
 }
 
+
+
 static bool HasShip(PlayerInfoModel player, int num, string letter)
 {
     foreach (var s in player.ShipLocations)
     {
-        if (s.SpotLetter == letter && s.SpotNumber == num)
+        if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)
         {
             if (s.Status == GridSpotStatus.Ship)
+                return true;
+
+        }
+    }
+    return false;
+}
+
+static bool IsMiss(PlayerInfoModel computer, int num, string letter)
+{
+    foreach (var s in computer.ShotGrid)
+    {
+        if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)
+        {
+            if (s.Status == GridSpotStatus.Miss)
             {
                 return true;
             }
@@ -159,6 +193,20 @@ static bool HasShip(PlayerInfoModel player, int num, string letter)
     return false;
 }
 
+static bool IsSunk(PlayerInfoModel computer, int num, string letters)
+{
+    foreach (var s in computer.ShipLocations)
+    {
+        if (s.SpotLetter == letters && s.SpotNumber == num)
+        {
+            if (s.Status == GridSpotStatus.Hit)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 static void SetUserShipLocations(PlayerInfoModel player, PlayerInfoModel opponent)
 {
     List<string> letters = new()
@@ -171,16 +219,11 @@ static void SetUserShipLocations(PlayerInfoModel player, PlayerInfoModel opponen
     };
     Messages.PlaceShipPhase(opponent.UserName);
 
-    //foreach (var s in opponent.ShipLocations)
-    //{
-    //    Console.WriteLine(s.SpotLetter + s.SpotNumber + s.Status);
-    //}
-
     int ShipCount = 1;
     do
     {
         Console.Clear();
-        DisplayShipLocations(player, letters);
+        DisplayShipLocations(player, letters, opponent);
         Messages.PlaceNextShipMsg(ShipCount);
         string location = Console.ReadLine();
         (var letter, var number) = GameLogic.SplitInputRowCol(location);
