@@ -82,7 +82,7 @@ public class Messages
         Console.Write(@$"
 *********************************************************
   Du vant over {computer.UserName}                      
-  Antall skudd: {player.TotalShots}   
+  Antall skudd: {player.TotalShots}
 *********************************************************
 ");
         Console.ResetColor();

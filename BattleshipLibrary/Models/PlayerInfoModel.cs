@@ -16,7 +16,7 @@ public class PlayerInfoModel
     public bool IsComputer { get; set; }
     public int TotalShots { get; set; }
 
-    private Random r = new Random();
+
 
     private List<string> _letters = new()
     {
@@ -69,23 +69,9 @@ public class PlayerInfoModel
         ShotGrid.Add(spot);
     }
 
-    public void PlaceComputerShips()
-    {
-        var output = new List<GridSpotModel>();
 
-        while (output.Count < 5)
-        {
-            var letter = _letters[r.Next(0, _letters.Count)];
-            var number = r.Next(1, 5);
-            if (IsOccupied(letter, number)) continue;
 
-            PlaceShip(letter, number);
-        }
-
-        ShipLocations = output;
-    }
-
-    private bool IsOccupied(string letter, int number)
+    public bool IsOccupied(string letter, int number)
     {
         foreach (var l in ShipLocations)
             if (l.SpotLetter == letter && l.SpotNumber == number)
