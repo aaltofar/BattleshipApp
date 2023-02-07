@@ -1,46 +1,33 @@
-﻿using System;
-using System.Data;
-using System.Data.Common;
-using System.Diagnostics.Metrics;
-using System.Text;
+﻿using System.Text;
 using Battleship;
 using BattleshipConsole;
 using BattleshipLibrary;
 using BattleshipLibrary.Models;
 Console.OutputEncoding = Encoding.UTF8;
 
-List<string> letters = new()
-{
-    "A",
-    "B",
-    "C",
-    "D",
-    "E"
-};
 BattleshipGame game = new();
-
-PlayerInfoModel computer = game.CreateComputer();
-PlayerInfoModel player = game.CreatePlayer();
-
+var (player, computer) = game.InitializeGame();
 
 
 Messages.Intro();
-game.SetShipLocations();
+game.SetShipLocations(player);
+
 do
 {
     game.ShowBoards(player, computer);
 
-    player.MakeShot();
+    game.MakeShot(player, computer);
 
     game.DetermineWinner(player, computer);
 
-    computer.MakeShot();
+    game.MakeShot(computer, player);
 
     game.DetermineWinner(player, computer);
 
 } while (game.Winner == null);
 
 if (game.Winner == player)
-{
     Messages.PlayerWinMessage(player, computer);
-}
+
+else
+    Messages.ComputerWinMessage(player, computer);

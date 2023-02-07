@@ -40,10 +40,9 @@ public class Messages
     public static void WavesMsg()
     {
         Console.ForegroundColor = ConsoleColor.Blue;
-        for (int i = 0; i < Console.WindowWidth / 2; i++)
-        {
+        for (int i = 0; i < Console.WindowWidth / 3; i++)
             Console.Write(@"\/");
-        }
+
         Console.ResetColor();
     }
 
@@ -83,7 +82,7 @@ public class Messages
         Console.Write(@$"
 *********************************************************
   Du vant over {computer.UserName}                      
-  Antall skudd: {PlayerInfoModel.GetShotTotalCount(player)}   
+  Antall skudd: {player.GetShotTotalCount()}   
 *********************************************************
 ");
         Console.ResetColor();
@@ -174,11 +173,21 @@ public class Messages
     {
         Console.Write("     ");
         for (int i = 0; i < 5; i++)
-        {
             Console.Write($"[ {letters[i]} ]");
-        }
+
+    }
+
+    public static void PlayerHitShotMessage(string row, int column)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Du skøyt mot {row}{column} og traff!");
+        Console.ResetColor();
+    }
+
+    public static void PlayerMissShotMessage(string row, int column)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"Du skøyt mot {row}{column}, men det var ikke noe skip der.");
+        Console.ResetColor();
     }
 }
-
-
-

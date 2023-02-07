@@ -18,7 +18,7 @@ public class PlayerInfoModel
 
     private Random r = new Random();
 
-    public List<string> _letters = new()
+    private List<string> _letters = new()
     {
         "A",
         "B",
@@ -26,7 +26,7 @@ public class PlayerInfoModel
         "D",
         "E"
     };
-    public List<int> _numbers = new()
+    private List<int> _numbers = new()
     {
         1,
         2,
@@ -72,7 +72,7 @@ public class PlayerInfoModel
     public void PlaceComputerShips()
     {
         var output = new List<GridSpotModel>();
-        var letters = new List<string>()
+        var letters = new List<string>
         {
             "A",
             "B",
@@ -82,24 +82,31 @@ public class PlayerInfoModel
         };
         while (output.Count < 5)
         {
-            string letter = letters[r.Next(0, letters.Count)];
-            int number = r.Next(1, 5);
-            if (IsOccupied(letter, number))
-            {
-                continue;
-            }
+            var letter = letters[r.Next(0, letters.Count)];
+            var number = r.Next(1, 5);
+            if (IsOccupied(letter, number)) continue;
 
-            output.Add(new GridSpotModel()
+            output.Add(new GridSpotModel
             {
                 SpotLetter = letter,
                 SpotNumber = number,
                 Status = GridSpotStatus.Ship
             });
         }
+
         ShipLocations = output;
     }
 
-    private void PlacePlayerShip(string letter, int number)
+    private bool IsOccupied(string letter, int number)
+    {
+        foreach (var l in ShipLocations)
+            if (l.SpotLetter == letter && l.SpotNumber == number)
+                return true;
+
+        return false;
+    }
+
+    public void PlacePlayerShip(string letter, int number)
     {
         var toAdd = new GridSpotModel()
         {
@@ -113,75 +120,32 @@ public class PlayerInfoModel
     public void MarkShotResult(string row, int column, bool isHit)
     {
         foreach (var s in ShotGrid)
-        {
             if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
             {
                 if (isHit)
-                {
                     s.Status = GridSpotStatus.Hit;
-                    //husk sink ship!!!! SinkShip(player, row, column);
-                }
 
                 else
                     s.Status = GridSpotStatus.Miss;
             }
-        }
-    }
-
-    public bool ValidateShot(string row, int column)
-    {
-        foreach (var s in ShotGrid)
-        {
-            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
-                if (s.Status == GridSpotStatus.Empty)
-                    return true;
-        }
-        return false;
     }
 
     public void SinkShip(string row, int column)
     {
         foreach (var s in ShipLocations)
-        {
             if (s.SpotLetter == row && s.SpotNumber == column)
-            {
                 s.Status = GridSpotStatus.Sunk;
-            }
-        }
-    }
-
-    public bool AlreadyShot(string row, int column)
-    {
-        foreach (var s in ShotGrid)
-        {
-            if (s.SpotLetter == row && s.SpotNumber == column)
-            {
-                if (s.Status != GridSpotStatus.Empty)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public bool IsOccupied(string letter, int number)
-    {
-        foreach (var l in ShipLocations)
-            if (l.SpotLetter == letter && l.SpotNumber == number)
-                return true;
-
-        return false;
     }
 
     public void MakeShot() { }
 
-    public void GetShotTotalCount()
+    public int GetShotTotalCount()
     {
         foreach (var s in ShotGrid)
             if (s.Status != GridSpotStatus.Empty)
                 TotalShots++;
-    }
 
+        return TotalShots;
+    }
 }
 
