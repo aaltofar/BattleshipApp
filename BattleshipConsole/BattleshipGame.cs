@@ -65,6 +65,7 @@ internal class BattleshipGame
         computer.RandomName();
         computer.InitializeGrid();
         computer.PlaceComputerShips();
+        computer.IsComputer = true;
         return computer;
     }
 
@@ -107,7 +108,7 @@ internal class BattleshipGame
 
             else
             {
-                player.PlacePlayerShip(letter, number);
+                player.PlaceShip(letter, number);
                 ShipCount++;
             }
         } while (player.ShipLocations.Count < MaxShipCount);
@@ -128,8 +129,9 @@ internal class BattleshipGame
         {
             var computerHit = MakeComputerShot(target, shooter);
             Messages.ComputerShotMsg(shooter.UserName, computerHit.Item2, computerHit.Item3, computerHit.Item1);
+            Thread.Sleep(3000);
         }
-        else
+        else if (!shooter.IsComputer)
         {
             string? row;
             int column;
@@ -151,10 +153,10 @@ internal class BattleshipGame
                 Messages.PlayerHitShotMessage(row, column);
 
             shooter.MarkShotResult(row, column, isHit);
+            Thread.Sleep(3000);
         }
 
     }
-
     private (bool, string, int) MakeComputerShot(PlayerInfoModel player, PlayerInfoModel computer)
     {
         var r = new Random();
@@ -222,7 +224,7 @@ internal class BattleshipGame
         }
     }
 
-    static void DisplayShipLocations(PlayerInfoModel player, List<string> letters, PlayerInfoModel computer)
+    void DisplayShipLocations(PlayerInfoModel player, List<string> letters, PlayerInfoModel computer)
     {
         int gridHeigth = 5;
         int gridLength = 5;
@@ -256,7 +258,7 @@ internal class BattleshipGame
         }
     }
 
-    private static bool HasShip(PlayerInfoModel captain, int num, string letter)
+    private bool HasShip(PlayerInfoModel captain, int num, string letter)
     {
         foreach (var s in captain.ShipLocations)
             if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)

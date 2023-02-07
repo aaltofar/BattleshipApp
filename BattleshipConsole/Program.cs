@@ -6,10 +6,9 @@ using BattleshipLibrary.Models;
 Console.OutputEncoding = Encoding.UTF8;
 
 BattleshipGame game = new();
+Messages.Intro();
 var (player, computer) = game.InitializeGame();
 
-
-Messages.Intro();
 game.SetShipLocations(player);
 
 do
@@ -29,5 +28,5 @@ do
 if (game.Winner == player)
     Messages.PlayerWinMessage(player, computer);
 
-else
-    Messages.ComputerWinMessage(player, computer);
+//else
+//    Messages.ComputerWinMessage(player, computer);

@@ -72,26 +72,14 @@ public class PlayerInfoModel
     public void PlaceComputerShips()
     {
         var output = new List<GridSpotModel>();
-        var letters = new List<string>
-        {
-            "A",
-            "B",
-            "C",
-            "D",
-            "E"
-        };
+
         while (output.Count < 5)
         {
-            var letter = letters[r.Next(0, letters.Count)];
+            var letter = _letters[r.Next(0, _letters.Count)];
             var number = r.Next(1, 5);
             if (IsOccupied(letter, number)) continue;
 
-            output.Add(new GridSpotModel
-            {
-                SpotLetter = letter,
-                SpotNumber = number,
-                Status = GridSpotStatus.Ship
-            });
+            PlaceShip(letter, number);
         }
 
         ShipLocations = output;
@@ -106,7 +94,7 @@ public class PlayerInfoModel
         return false;
     }
 
-    public void PlacePlayerShip(string letter, int number)
+    public void PlaceShip(string letter, int number)
     {
         var toAdd = new GridSpotModel()
         {
@@ -128,6 +116,8 @@ public class PlayerInfoModel
                 else
                     s.Status = GridSpotStatus.Miss;
             }
+
+        TotalShots++;
     }
 
     public void SinkShip(string row, int column)
@@ -137,15 +127,5 @@ public class PlayerInfoModel
                 s.Status = GridSpotStatus.Sunk;
     }
 
-    public void MakeShot() { }
-
-    public int GetShotTotalCount()
-    {
-        foreach (var s in ShotGrid)
-            if (s.Status != GridSpotStatus.Empty)
-                TotalShots++;
-
-        return TotalShots;
-    }
 }
 

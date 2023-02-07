@@ -40,7 +40,7 @@ public class Messages
     public static void WavesMsg()
     {
         Console.ForegroundColor = ConsoleColor.Blue;
-        for (int i = 0; i < Console.WindowWidth / 3; i++)
+        for (int i = 0; i < Console.WindowWidth / 4; i++)
             Console.Write(@"\/");
 
         Console.ResetColor();
@@ -82,7 +82,7 @@ public class Messages
         Console.Write(@$"
 *********************************************************
   Du vant over {computer.UserName}                      
-  Antall skudd: {player.GetShotTotalCount()}   
+  Antall skudd: {player.TotalShots}   
 *********************************************************
 ");
         Console.ResetColor();
