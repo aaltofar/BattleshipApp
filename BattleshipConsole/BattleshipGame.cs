@@ -44,7 +44,7 @@ internal class BattleshipGame
         Console.WriteLine();
         Console.WriteLine("Motstanderens brett:");
         Console.WriteLine();
-        DisplayShotGrid(player, computer);
+        DisplayShotGrid(player);
         Console.WriteLine();
     }
 
@@ -113,7 +113,7 @@ internal class BattleshipGame
             Messages.PlaceNextShipMsg(ShipCount);
             var location = Console.ReadLine();
             var (letter, number) = SplitInputRowCol(location);
-            if (IsOccupied(letter, number, player) || IsNotOnGrid(letter, number) == false)
+            if (player.IsOccupied(letter, number) || IsNotOnGrid(letter, number) == false)
                 Messages.UnableToPlaceMsg(location);
 
             else
@@ -124,14 +124,7 @@ internal class BattleshipGame
         } while (player.ShipLocations.Count < MaxShipCount);
     }
 
-    public bool IsOccupied(string letter, int number, PlayerInfoModel captain)
-    {
-        foreach (var l in captain.ShipLocations)
-            if (l.SpotLetter == letter && l.SpotNumber == number)
-                return true;
 
-        return false;
-    }
 
     public void MakeShot(PlayerInfoModel shooter, PlayerInfoModel target)
     {
@@ -151,12 +144,12 @@ internal class BattleshipGame
                 Console.WriteLine();
                 var shot = Messages.AskForShot();
                 (row, column) = SplitInputRowCol(shot);
-                isValidShot = ValidateShot(row, column, shooter);
+                isValidShot = shooter.ValidateShot(row, column);
                 if (!isValidShot)
                     Messages.InvalidShotMsg(shot);
             } while (!isValidShot);
 
-            var isHit = IsHit(target, row, column);
+            var isHit = target.IsHit(row, column);
             if (!isHit)
                 Messages.PlayerMissShotMessage(row, column);
             else
@@ -169,21 +162,19 @@ internal class BattleshipGame
     }
     private (bool, string, int) MakeComputerShot(PlayerInfoModel player, PlayerInfoModel computer)
     {
-        var r = new Random();
-
         var row = _letters[r.Next(0, _letters.Count)];
         var column = r.Next(1, MaxGridLength + 1);
-        var isValidShot = ValidateShot(row, column, computer);
-        var alreadyShotHere = AlreadyShot(row, column, computer);
+        var isValidShot = computer.ValidateShot(row, column);
+        var alreadyShotHere = computer.AlreadyShot(row, column);
         while (!isValidShot || alreadyShotHere)
         {
             row = _letters[r.Next(0, _letters.Count)];
             column = r.Next(1, MaxGridLength + 1);
-            isValidShot = ValidateShot(row, column, computer);
-            alreadyShotHere = AlreadyShot(row, column, computer);
+            isValidShot = computer.ValidateShot(row, column);
+            alreadyShotHere = computer.AlreadyShot(row, column);
         }
 
-        var isHit = IsHit(player, row, column);
+        var isHit = player.IsHit(row, column);
         computer.MarkShotResult(row, column, isHit);
         if (!isHit)
             return (false, row, column);
@@ -191,15 +182,8 @@ internal class BattleshipGame
         return (true, row, column);
     }
 
-    public bool IsHit(PlayerInfoModel target, string row, int column)
-    {
-        foreach (var s in target.ShipLocations)
-            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column && s.Status == GridSpotStatus.Ship)
-                return true;
-        return false;
-    }
 
-    private static void DisplayShotGrid(PlayerInfoModel player, PlayerInfoModel computer)
+    private static void DisplayShotGrid(PlayerInfoModel player)
     {
         var currentRow = player.ShotGrid[0].SpotLetter;
 
@@ -234,7 +218,7 @@ internal class BattleshipGame
         }
     }
 
-    void DisplayShipLocations(PlayerInfoModel player, List<string> letters, PlayerInfoModel computer)
+    private void DisplayShipLocations(PlayerInfoModel player, List<string> letters, PlayerInfoModel computer)
     {
         int gridHeigth = 5;
         int gridLength = 5;
@@ -244,20 +228,20 @@ internal class BattleshipGame
             Console.WriteLine();
             for (int j = 1; j <= gridLength; j++)
             {
-                if (IsSunk(computer, j, currentLetter))
+                if (computer.IsSunk(j, currentLetter))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write($"[ X ]");
                     Console.ResetColor();
                 }
 
-                else if (IsMiss(computer, j, currentLetter))
+                else if (computer.IsMiss(j, currentLetter))
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write($"[{currentLetter} {j}]");
                     Console.ResetColor();
                 }
-                else if (HasShip(player, j, currentLetter))
+                else if (player.HasShip(j, currentLetter))
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write($"[{currentLetter} {j}]");
@@ -269,50 +253,60 @@ internal class BattleshipGame
         }
     }
 
-    private bool HasShip(PlayerInfoModel captain, int num, string letter)
-    {
-        foreach (var s in captain.ShipLocations)
-            if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)
-                if (s.Status == GridSpotStatus.Ship)
-                    return true;
-        return false;
-    }
+    //flytte herfra og ned
+    //private bool HasShip(PlayerInfoModel captain, int num, string letter)
+    //{
+    //    foreach (var s in captain.ShipLocations)
+    //        if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)
+    //            if (s.Status == GridSpotStatus.Ship)
+    //                return true;
+    //    return false;
+    //}
 
-    public bool AlreadyShot(string row, int column, PlayerInfoModel captain)
-    {
-        foreach (var s in captain.ShotGrid)
-            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
-                if (s.Status != GridSpotStatus.Empty)
-                    return true;
-        return false;
-    }
+    //public bool AlreadyShot(string row, int column, PlayerInfoModel captain)
+    //{
+    //    foreach (var s in captain.ShotGrid)
+    //        if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
+    //            if (s.Status != GridSpotStatus.Empty)
+    //                return true;
+    //    return false;
+    //}
 
-    private bool IsMiss(PlayerInfoModel captain, int num, string letter)
-    {
-        foreach (var s in captain.ShotGrid)
-            if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)
-                if (s.Status == GridSpotStatus.Miss)
-                    return true;
-        return false;
-    }
+    //private bool IsMiss(PlayerInfoModel captain, int num, string letter)
+    //{
+    //    foreach (var s in captain.ShotGrid)
+    //        if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)
+    //            if (s.Status == GridSpotStatus.Miss)
+    //                return true;
+    //    return false;
+    //}
 
-    private bool IsSunk(PlayerInfoModel captain, int num, string letters)
-    {
-        foreach (var s in captain.ShotGrid)
-            if (s.SpotLetter == letters.ToUpper() && s.SpotNumber == num)
-                if (s.Status == GridSpotStatus.Hit)
-                    return true;
-        return false;
-    }
+    //private bool IsSunk(PlayerInfoModel captain, int num, string letters)
+    //{
+    //    foreach (var s in captain.ShotGrid)
+    //        if (s.SpotLetter == letters.ToUpper() && s.SpotNumber == num)
+    //            if (s.Status == GridSpotStatus.Hit)
+    //                return true;
+    //    return false;
+    //}
 
-    private bool ValidateShot(string row, int column, PlayerInfoModel captain)
-    {
-        foreach (var s in captain.ShotGrid)
-            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
-                if (s.Status == GridSpotStatus.Empty)
-                    return true;
-        return false;
-    }
+    //private bool ValidateShot(string row, int column, PlayerInfoModel captain)
+    //{
+    //    foreach (var s in captain.ShotGrid)
+    //        if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
+    //            if (s.Status == GridSpotStatus.Empty)
+    //                return true;
+    //    return false;
+    //}
+
+    //public bool IsOccupied(string letter, int number, PlayerInfoModel captain)
+    //{
+    //    foreach (var l in captain.ShipLocations)
+    //        if (l.SpotLetter == letter && l.SpotNumber == number)
+    //            return true;
+
+    //    return false;
+    //}
 
 }
 

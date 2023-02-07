@@ -16,8 +16,6 @@ public class PlayerInfoModel
     public bool IsComputer { get; set; }
     public int TotalShots { get; set; }
 
-
-
     private List<string> _letters = new()
     {
         "A",
@@ -106,12 +104,56 @@ public class PlayerInfoModel
         TotalShots++;
     }
 
-    public void SinkShip(string row, int column)
+    public bool HasShip(int num, string letter)
     {
         foreach (var s in ShipLocations)
-            if (s.SpotLetter == row && s.SpotNumber == column)
-                s.Status = GridSpotStatus.Sunk;
+            if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)
+                if (s.Status == GridSpotStatus.Ship)
+                    return true;
+        return false;
     }
 
+    public bool AlreadyShot(string row, int column)
+    {
+        foreach (var s in ShotGrid)
+            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
+                if (s.Status != GridSpotStatus.Empty)
+                    return true;
+        return false;
+    }
+
+    public bool IsMiss(int num, string letter)
+    {
+        foreach (var s in ShotGrid)
+            if (s.SpotLetter == letter.ToUpper() && s.SpotNumber == num)
+                if (s.Status == GridSpotStatus.Miss)
+                    return true;
+        return false;
+    }
+
+    public bool IsSunk(int num, string letters)
+    {
+        foreach (var s in ShotGrid)
+            if (s.SpotLetter == letters.ToUpper() && s.SpotNumber == num)
+                if (s.Status == GridSpotStatus.Hit)
+                    return true;
+        return false;
+    }
+
+    public bool ValidateShot(string row, int column)
+    {
+        foreach (var s in ShotGrid)
+            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column)
+                if (s.Status == GridSpotStatus.Empty)
+                    return true;
+        return false;
+    }
+    public bool IsHit(string row, int column)
+    {
+        foreach (var s in ShipLocations)
+            if (s.SpotLetter == row.ToUpper() && s.SpotNumber == column && s.Status == GridSpotStatus.Ship)
+                return true;
+        return false;
+    }
 }
 
