@@ -10,13 +10,13 @@ namespace BattleshipLibrary.Models;
 
 public class PlayerInfoModel
 {
-    public string UserName { get; set; }
+    public string? UserName { get; set; }
     public List<GridSpotModel> ShipLocations { get; set; } = new List<GridSpotModel>();
     public List<GridSpotModel> ShotGrid { get; set; } = new List<GridSpotModel>();
     public bool IsComputer { get; set; }
     public int TotalShots { get; set; }
 
-    private List<string> _letters = new()
+    private readonly List<string> _letters = new()
     {
         "A",
         "B",
@@ -24,7 +24,7 @@ public class PlayerInfoModel
         "D",
         "E"
     };
-    private List<int> _numbers = new()
+    private readonly List<int> _numbers = new()
     {
         1,
         2,
@@ -66,8 +66,6 @@ public class PlayerInfoModel
         };
         ShotGrid.Add(spot);
     }
-
-
 
     public bool IsOccupied(string letter, int number)
     {

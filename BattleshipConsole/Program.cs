@@ -8,9 +8,7 @@ Console.OutputEncoding = Encoding.UTF8;
 BattleshipGame game = new();
 Messages.Intro();
 var (player, computer) = game.InitializeGame();
-//var player = game.CreatePlayer();
-//var computer = game.CreateComputer();
-Console.WriteLine("Hei");
+
 game.SetShipLocations(player);
 
 do

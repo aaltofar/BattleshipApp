@@ -1,18 +1,12 @@
 ﻿using BattleshipConsole;
 using BattleshipLibrary.Models;
-using BattleshipLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
 
 namespace Battleship;
 
 internal class BattleshipGame
 {
     public PlayerInfoModel Winner { get; set; }
+
     public List<string> _letters = new()
     {
         "A",
@@ -24,17 +18,16 @@ internal class BattleshipGame
 
     private const int MaxGridLength = 5;
     private const int MaxShipCount = 5;
-    private Random r = new Random();
+    private readonly Random r = new();
 
     public (PlayerInfoModel, PlayerInfoModel) InitializeGame()
     {
-
         var player = CreatePlayer();
         var computer = CreateComputer();
 
-
         return (player, computer);
     }
+
     public void ShowBoards(PlayerInfoModel player, PlayerInfoModel computer)
     {
         Console.Clear();
@@ -50,7 +43,7 @@ internal class BattleshipGame
 
     public PlayerInfoModel CreatePlayer()
     {
-        PlayerInfoModel player = new PlayerInfoModel();
+        var player = new PlayerInfoModel();
         player.UserName = Messages.AskForUsersName();
         player.InitializeGrid();
         return player;
@@ -68,7 +61,6 @@ internal class BattleshipGame
 
     public void PlaceComputerShips(PlayerInfoModel computer)
     {
-
         while (computer.ShipLocations.Count < 5)
         {
             var letter = _letters[r.Next(0, _letters.Count)];
@@ -81,7 +73,7 @@ internal class BattleshipGame
 
     public void DetermineWinner(PlayerInfoModel player, PlayerInfoModel computer)
     {
-        int hits = 0;
+        var hits = 0;
         foreach (var s in player.ShotGrid)
             if (s.Status == GridSpotStatus.Hit)
                 hits++;
@@ -114,7 +106,9 @@ internal class BattleshipGame
             var location = Console.ReadLine();
             var (letter, number) = SplitInputRowCol(location);
             if (player.IsOccupied(letter, number) || IsNotOnGrid(letter, number) == false)
+            {
                 Messages.UnableToPlaceMsg(location);
+            }
 
             else
             {
@@ -123,7 +117,6 @@ internal class BattleshipGame
             }
         } while (player.ShipLocations.Count < MaxShipCount);
     }
-
 
 
     public void MakeShot(PlayerInfoModel shooter, PlayerInfoModel target)
@@ -158,8 +151,8 @@ internal class BattleshipGame
             shooter.MarkShotResult(row, column, isHit);
             Thread.Sleep(3000);
         }
-
     }
+
     private (bool, string, int) MakeComputerShot(PlayerInfoModel player, PlayerInfoModel computer)
     {
         var row = _letters[r.Next(0, _letters.Count)];
@@ -220,18 +213,17 @@ internal class BattleshipGame
 
     private void DisplayShipLocations(PlayerInfoModel player, List<string> letters, PlayerInfoModel computer)
     {
-        int gridHeigth = 5;
-        int gridLength = 5;
-        for (int i = 0; i < gridHeigth; i++)
+        var gridHeigth = 5;
+        var gridLength = 5;
+        for (var i = 0; i < gridHeigth; i++)
         {
-            string currentLetter = letters[i];
+            var currentLetter = letters[i];
             Console.WriteLine();
-            for (int j = 1; j <= gridLength; j++)
-            {
+            for (var j = 1; j <= gridLength; j++)
                 if (computer.IsSunk(j, currentLetter))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write($"[ X ]");
+                    Console.Write("[ X ]");
                     Console.ResetColor();
                 }
 
@@ -248,8 +240,9 @@ internal class BattleshipGame
                     Console.ResetColor();
                 }
                 else
+                {
                     Console.Write($"[{currentLetter} {j}]");
-            }
+                }
         }
     }
 
@@ -307,6 +300,4 @@ internal class BattleshipGame
 
     //    return false;
     //}
-
 }
-
